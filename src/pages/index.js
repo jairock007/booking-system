@@ -1,114 +1,234 @@
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const BookingSystem = () => {
+  const [step, setStep] = useState(1);
+  const [booking, setBooking] = useState({
+    date: "",
+    time: "",
+    guests: "",
+    name: "",
+    email: "",
+    phone: "",
+  });
+  const [errors, setErrors] = useState({});
+  const [timeSlots, setTimeSlots] = useState([]);
+  const [submitted, setSubmitted] = useState(false);
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+  // Simulate available time slots based on date
+  const generateTimeSlots = (date) => {
+    const slots = [];
+    for (let hour = 11; hour <= 21; hour++) {
+      slots.push(`${hour}:00`);
+      slots.push(`${hour}:30`);
+    }
+    setTimeSlots(slots);
+  };
 
-export default function Home() {
+  const handleDateChange = (e) => {
+    const date = e.target.value;
+    setBooking({ ...booking, date });
+    generateTimeSlots(date);
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!booking.date) newErrors.date = "Date is required";
+    if (!booking.time) newErrors.time = "Time is required";
+    if (!booking.guests) newErrors.guests = "Number of guests is required";
+    if (!booking.name) newErrors.name = "Name is required";
+    if (!booking.email) newErrors.email = "Email is required";
+    if (!booking.phone) newErrors.phone = "Phone is required";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (validateForm()) {
+      try {
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        setSubmitted(true);
+      } catch (error) {
+        console.error("Booking error:", error);
+      }
+    }
+  };
+
   return (
-    <div
-      className={`${geistSans.variable} ${geistMono.variable} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
-    >
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/pages/index.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-md mx-auto">
+        {!submitted ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Table Reservation</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="date">Date</Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    min={new Date().toISOString().split("T")[0]}
+                    value={booking.date}
+                    onChange={handleDateChange}
+                    className={errors.date ? "border-red-500" : ""}
+                  />
+                  {errors.date && (
+                    <p className="text-red-500 text-sm">{errors.date}</p>
+                  )}
+                </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+                {booking.date && (
+                  <div className="space-y-2">
+                    <Label htmlFor="time">Time</Label>
+                    <select
+                      id="time"
+                      value={booking.time}
+                      onChange={(e) =>
+                        setBooking({ ...booking, time: e.target.value })
+                      }
+                      className="w-full p-2 border rounded"
+                    >
+                      <option value="">Select time</option>
+                      {timeSlots.map((slot) => (
+                        <option key={slot} value={slot}>
+                          {slot}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.time && (
+                      <p className="text-red-500 text-sm">{errors.time}</p>
+                    )}
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="guests">Number of Guests</Label>
+                  <Input
+                    id="guests"
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={booking.guests}
+                    onChange={(e) =>
+                      setBooking({ ...booking, guests: e.target.value })
+                    }
+                    className={errors.guests ? "border-red-500" : ""}
+                  />
+                  {errors.guests && (
+                    <p className="text-red-500 text-sm">{errors.guests}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    value={booking.name}
+                    onChange={(e) =>
+                      setBooking({ ...booking, name: e.target.value })
+                    }
+                    className={errors.name ? "border-red-500" : ""}
+                  />
+                  {errors.name && (
+                    <p className="text-red-500 text-sm">{errors.name}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={booking.email}
+                    onChange={(e) =>
+                      setBooking({ ...booking, email: e.target.value })
+                    }
+                    className={errors.email ? "border-red-500" : ""}
+                  />
+                  {errors.email && (
+                    <p className="text-red-500 text-sm">{errors.email}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={booking.phone}
+                    onChange={(e) =>
+                      setBooking({ ...booking, phone: e.target.value })
+                    }
+                    className={errors.phone ? "border-red-500" : ""}
+                  />
+                  {errors.phone && (
+                    <p className="text-red-500 text-sm">{errors.phone}</p>
+                  )}
+                </div>
+
+                <Button type="submit" className="w-full">
+                  Book Table
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle>Booking Confirmed!</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p>
+                  <strong>Date:</strong> {booking.date}
+                </p>
+                <p>
+                  <strong>Time:</strong> {booking.time}
+                </p>
+                <p>
+                  <strong>Guests:</strong> {booking.guests}
+                </p>
+                <p>
+                  <strong>Name:</strong> {booking.name}
+                </p>
+                <p>
+                  <strong>Email:</strong> {booking.email}
+                </p>
+                <p>
+                  <strong>Phone:</strong> {booking.phone}
+                </p>
+              </div>
+              <Button
+                onClick={() => {
+                  setSubmitted(false);
+                  setBooking({
+                    date: "",
+                    time: "",
+                    guests: "",
+                    name: "",
+                    email: "",
+                    phone: "",
+                  });
+                }}
+                className="mt-4"
+              >
+                Make Another Booking
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
-}
+};
+
+export default BookingSystem;
